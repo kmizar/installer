@@ -1,116 +1,102 @@
-# Общая информация
+# Что делает.
+Скрипт выполняет раскатку проекта на dev/preview/prod стенды.
+<br>
+Для установки на preview/prod выполняется конфигурация окружения.
+<br>
+Серверная установка выполняется только на тачке с CentOS.
+<br>
+При установки на dev подразумевается уже настроенное окружение
+<br>
+_(т.е. выполняется только раскатка и конфигурация самого приложения)_
+# За кулисами.
+* **OS configure**:
+  * create user hotdog
+  * epel install / update
+* **OS app:**
+  * python
+  * postgresql 9.6
+  * nginx
+  * gcc
+* **Python venv:**
+  * django==1.9
+  * psycopg2==2.7.1
+  * django-ckeditor
+  * django-resized
+  * pillow
+  * unicorns
+* **Django configure:**
+  * creata app
+  * deploy frontend / backend
+  * migrate database
+# Запуск скрипта.
+Скрипт принимает следующие значения:
+* -t:  install type;
+* -s:  hostname;
+* -f:  frontend repo name;
+* -p:  postgresql password;
+* -fb: frontend repo branch name;
+* -bb: backend repo branch name;
+* -db: database name
+Ключи `-fb` `-bb` являются опциональными, если их не указать раскатка будет происходить с master ветки
+Ключ `-db` необходим только для установки в дев среде _(логин/пароль зашиты в коде)_
+Клюс `-p` необходим для установки в preview / prod среде _(Имя и логин базы зашиты в коде)_
+# Перед первой раскаткой или после ресетапа сервера
+## Установка git, обмен ключами
+Для выкатки на голый сервер, перед запуском скрипта нужно следующее _(прим. для centOS)_:
+* $ yum install git
+* $ ssh-keygen
+* $ cat ~/.ssh/id_rsa.pub _(скопировать ключ)_
+* Добавить ключ в профиле github
+## Для раскатки с ssl
+Для корректной раскатки проекта с использование https нужно подготовить сертификаты
+<br>
+Описанные ниже шаги выполняются после раскатки проекта _(завершения работы deploy скрипта)_
+<br>
+В созданной директории **./ssl_sertificates** в хомяке СПУЗа hotdog
+* $ vim private.key (создаем закрытый ключ)
+* $ vim chain.crt   (создаем цепочку сертификатов: private.crt + bundle.crt)
+* $ openssl dhparam -out ./dhparam.pem 4096  (генерим dhparam)
+* $ systemctl start nginx
+# В случае пиздеца полезно
+## Проверка демонов
+- $ systemctl status gunicorn
+- $ systemctl status nginx
+## Рестарт демонов
+- $ systemctl restart gunicorn
+- $ systemctl restart nginx
+## Конфиг файлы
+- $ vim /etc/nginx/nginx.conf
+## Проверка SSL
+Проверить безопасность соединения можно тут:
+<br>
+https://www.ssllabs.com/ssltest/analyze.html
+<br>
+Ожидается результат: **A+**
+<br>
+Посмотреть что твориться на сервере:
+- $ openssl s_client -connect hostname:443 -state -debug
+## Производительность
+- $ ab -n 1000 -c100 https://example.com/
+1000 запросов по 100 штук
 
-Весь проект разбит на несколько частей и ведется в нескольких репозиториях:
+# Новый релиз
+## Отводим ветку с релизом
+Создаем ветку с названием: **releases/_(номер релиза)_**
+- $ git checkout -b branch-name
+- $ git push origin branch-name
+## Проблемы с миграцией данных БД
+На примере изменения размера поля varchar
+- $ python makemigrations
+- $ vim ./backend/migration/new_migration
+- $ Добавляем AlterTable + import models
+```python
+from django.db import migrations, models
 
-* Фронтенд: [https://github.com/kmizar/kmizar](https://github.com/kmizar/kmizar)
-* Бекенд: [https://github.com/kmizar/backend](https://github.com/kmizar/backend)
-  * _Дополнительные сервисы \(планируется\)_
-
-Соответственно каждый репозиторий обладает своим независимым релизным циклом.  
-По мимо самого проекта, для корректной работы необходимо выполнять настройки его окружения.  
-Для автоматизированного процесса раскатки проекта используется отдельный скрипт: [deployPrd.sh](https://github.com/kmizar/installer/blob/master/deployPrd.sh).
-
-# Запуск скрипта
-
-В зависимости от типа раскатки, скрипт запускается с разным набором аттрибутов
-
-| Опция | Описание | Тип раскатки |
-| :--- | :--- | :--- |
-| **-t ** | тип установки **\(prod, vm, nossl, dev\)** | prod / test / dev / nossl |
-| **-s ** | название хоста \(_без www_\) | prod / test / nossl |
-| **-f** | название фронтенд-репозитория | prod / test / dev / nossl |
-| **-p ** | пароль к БД | prod / test / nossl |
-| **-fb** | ветка фронтенд репозитория, если опция не задана - установка из master ветки | prod / test / dev / nossl |
-| **-bb** | ветка бекенд репозитория, если опция не задана - установка из master ветки | prod / test / dev / nossl |
-| -db |  |  |
-
-Типы установок:
-
-* **prod** - установка продакшен версии;
-* **vm** - установка preview / test версии с ssl;
-* **nossl** - установка без сертификатов;
-* **dev** - локальная установка для разработки.
-
-### Дополнительные шаги для раскатки с SSL
-
-После завершения работы deploy-скрипта \(_если это первая выкатка с ssl или выкатка после ресетапа сервера_\) демон nginx не сможет поднятся, т.к. для https не определены ssl-сертификаты.
-
-Описанные ниже шаги выполняются после раскатки проекта _\(завершения работы deploy скрипта\).      
-_В созданной директории **./ssl\_sertificates ** в хомяке СПУЗа **hotdog **выполнить:
-
+class Migration(migrations.Migration):
+ dependencies = [
+  ('backend', '0002_auto_20170606_1053'),
+ ]
+ operations = [
+  migrations.AlterField('article', 'meta_description', field=models.CharField(max_length=255))
+ ]
 ```
-$ vim private.key #скопировать в редактор приватный ключ
-$ vim chain.crt   #скопировать в редактор цепочку сертификатов
-$ openssl dhparam -out ./dhparam.pem 4096 #генерим dhparam
-$ systemctl start nginx
-```
-
-### Дополнительные шаги перед 1 установкой или после ресетапа
-
-В случае, если это первая установка, или установка после полного ресетапа сервера необходимо сделать следующее:
-
-```
-$ yum install git #ставим гит на сервер
-$ ssh-keygen #генерим ssh ключ
-$ cat ~/.ssh/id_rsa.pub #копируем ключ
-
-#Добавляем ключ в настройках github
-```
-
-# Описание deploy-скрипта
-
-Скрипт выполняет раскатку проекта на _**dev/preview/prod**_ стенды. Для установки на preview/prod выполняется конфигурация окружения. Серверная установка выполняется только на тачке с **CentOS**.
-
-При локальной установке подразумевается уже настроенное окружение, т.е. срипт только раскатывает код проекта.
-
-### Полный перечень действий deploy-скрипта
-
-* Создание в ОС пользователя hotdog
-* Установка epel-release + update
-* Установка python 3.5
-* Установка postgreSQL
-* Установка nginx
-* Установка gcc библиотеки
-* Создание python виртуалки
-
-  * Установка django 1.9
-  * Установка доп библиотек
-
-    * psycopg2
-
-    * django-ckeditor
-
-    * django-resized
-
-    * pillow
-
-    * unicorns
-
-  * Создание django app
-
-  * Конфигурация app
-
-* Клонирование репозитория фронтенда
-
-* Клонирование репозитория бекенда
-
-* Создание БД \(таблицы, пользователь, раздача грантов\)
-
-* Конфигурация gunicorns
-
-* Конфигурация nginx
-
-* Общая конфигурация приложения в зависимости от установки
-
-* Миграция статики
-
-* Настройка метрик
-
-* Настройка robots.txt
-
-* Запуск демонов
-
-* Открытие портов
-
-
-
