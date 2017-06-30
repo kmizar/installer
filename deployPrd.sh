@@ -327,8 +327,8 @@ mkdir -p ../../media/tag_group_icons ../../media/uploads
 #----------------------------------------------------------------------------
 #deploy frontend / backend
 
-git clone -b ${BACKEND_BRANCH} git@github.com:igoss/backend.git
-git clone -b ${FRONTEND_BRANCH} git@github.com:igoss/${FRONTEND}.git
+git clone -b ${BACKEND_BRANCH} git@github.com:kmizar/backend.git
+git clone -b ${FRONTEND_BRANCH} git@github.com:kmizar/${FRONTEND}.git
 
 if [[ $TYPE != "dev" ]]; then
   rm -rf ./backend/.git ./backend/README.md ./backend/.gitignore
