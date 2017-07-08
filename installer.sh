@@ -407,8 +407,9 @@ python manage.py makemigrations
 python manage.py migrate backend
 python manage.py migrate
 
-yes "yes" | python manage.py collectstatic
-
+if [[ $TYPE != "dev" ]]; then
+  yes "yes" | python manage.py collectstatic
+fi
 
 #----------------------------------------------------------------------------
 #configure gunicorn daemon
