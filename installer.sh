@@ -296,7 +296,7 @@ CACHES = {
 EOF
 
 if [[ $TYPE != "dev" ]]; then
-  cat >> ./configurations/settings.py << EOF
+  cat >> ./configuration/settings.py << EOF
   STATIC_URL = '/static/'
   STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 
@@ -305,7 +305,7 @@ if [[ $TYPE != "dev" ]]; then
 
 EOF
 else
-  cat >> ./configurations/settings.py << EOF
+  cat >> ./configuration/settings.py << EOF
   STATIC_URL = '/static/'
   STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend/static/'),)
 
