@@ -302,23 +302,48 @@ CACHES = {
 EOF
 
 rm -rf ./configuration/urls.py && touch ./configuration/urls.py
-cat >> ./configuration/urls.py << EOF
-# -*- coding: utf-8 -*-
-from django.contrib   import admin
-from django.conf.urls import url, include
+if [[ $TYPE != "dev" ]]; then
+  cat >> ./configuration/urls.py << EOF
+  # -*- coding: utf-8 -*-
+  from django.contrib   import admin
+  from django.conf.urls import url, include
 
-from django.contrib.sitemaps import views as xml_site
-from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
-sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
+  from django.contrib.sitemaps import views as xml_site
+  from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
+  sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
 
-urlpatterns = [
-  url(r"^kmizar-admin-panel/", admin.site.urls),
-  url(r"^ckeditor/", include("ckeditor_uploader.urls")),
-  url(r"", include("backend.urls")),
-  url(r'^sitemap.xml$', xml_site.sitemap, {'sitemaps': sitemaps})
-]
+  urlpatterns = [
+    url(r"^kmizar-admin-panel/", admin.site.urls),
+    url(r"^ckeditor/", include("ckeditor_uploader.urls")),
+    url(r"", include("backend.urls")),
+    url(r'^sitemap.xml$', xml_site.sitemap, {'sitemaps': sitemaps})
+  ]
 
 EOF
+else
+  cat >> ./configuration/urls.py << EOF
+  # -*- coding: utf-8 -*-
+  from django.contrib   import admin
+  from django.conf.urls import url, include
+
+  from django.conf.urls.static import static
+  from django.conf import settings
+
+  from django.contrib.sitemaps import views as xml_site
+  from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
+  sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
+
+  urlpatterns = [
+    url(r"^kmizar-admin-panel/", admin.site.urls),
+    url(r"^ckeditor/", include("ckeditor_uploader.urls")),
+    url(r"", include("backend.urls")),
+    url(r'^sitemap.xml$', xml_site.sitemap, {'sitemaps': sitemaps})
+  ]
+
+  urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+EOF
+fi
 
 rm -rf settings.py-e
 mkdir -p ../../media/tag_group_icons ../../media/uploads
@@ -529,13 +554,13 @@ if [[ $TYPE != "dev" ]]; then
       add_header Cache-Control public;
       expires 360d;
     }
-    
+
     error_page 404 /404.html;
     location = /404.html {
       root $PWD/projectX/app_django/frontend/templates;
       internal;
     }
-    
+
     location / {
       proxy_cache cache;
       proxy_cache_valid 480m;
