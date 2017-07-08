@@ -260,12 +260,6 @@ TEMPLATES = [
 
 DATE_FORMAT = 'd E Y в G:i'
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
-
 CKEDITOR_UPLOAD_PATH = 'uploads/'
 CKEDITOR_CONFIGS = {
   'default': {
@@ -300,6 +294,25 @@ CACHES = {
 }
 
 EOF
+
+if [[ $TYPE != "dev" ]]; then
+  cat >> ./configurations/settings.py << EOF
+  STATIC_URL = '/static/'
+  STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
+
+  MEDIA_URL = '/media/'
+  MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
+
+EOF
+else
+  STATIC_URL = '/static/'
+  STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend/static/'),)
+
+  MEDIA_URL = '/media/'
+  MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
+
+EOF
+fi
 
 rm -rf ./configuration/urls.py && touch ./configuration/urls.py
 if [[ $TYPE != "dev" ]]; then
