@@ -297,20 +297,20 @@ EOF
 
 if [[ $TYPE != "dev" ]]; then
   cat >> ./configuration/settings.py << EOF
-  STATIC_URL = '/static/'
-  STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 
-  MEDIA_URL = '/media/'
-  MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
 
 EOF
 else
   cat >> ./configuration/settings.py << EOF
-  STATIC_URL = '/static/'
-  STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend/static/'),)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend/static/'),)
 
-  MEDIA_URL = '/media/'
-  MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '../../media')
 
 EOF
 fi
