@@ -404,8 +404,8 @@ mkdir ./backend/migrations && touch ./backend/migrations/__init__.py
 mv ./${FRONTEND} ./frontend
 
 python manage.py makemigrations
-python manage.py migrate backend
 python manage.py migrate
+python manage.py migrate backend
 
 if [[ $TYPE != "dev" ]]; then
   yes "yes" | python manage.py collectstatic
