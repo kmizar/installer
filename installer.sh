@@ -305,6 +305,7 @@ if [[ $TYPE != "dev" ]]; then
 
 EOF
 else
+  cat >> ./configurations/settings.py << EOF
   STATIC_URL = '/static/'
   STATICFILES_DIRS = (os.path.join(BASE_DIR, 'frontend/static/'),)
 
