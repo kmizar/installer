@@ -318,43 +318,43 @@ fi
 rm -rf ./configuration/urls.py && touch ./configuration/urls.py
 if [[ $TYPE != "dev" ]]; then
   cat >> ./configuration/urls.py << EOF
-  # -*- coding: utf-8 -*-
-  from django.contrib   import admin
-  from django.conf.urls import url, include
+# -*- coding: utf-8 -*-
+from django.contrib   import admin
+from django.conf.urls import url, include
 
-  from django.contrib.sitemaps import views as xml_site
-  from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
-  sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
+from django.contrib.sitemaps import views as xml_site
+from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
+sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
 
-  urlpatterns = [
+urlpatterns = [
     url(r"^kmizar-admin-panel/", admin.site.urls),
     url(r"^ckeditor/", include("ckeditor_uploader.urls")),
     url(r"", include("backend.urls")),
     url(r'^sitemap.xml$', xml_site.sitemap, {'sitemaps': sitemaps})
-  ]
+]
 
 EOF
 else
   cat >> ./configuration/urls.py << EOF
-  # -*- coding: utf-8 -*-
-  from django.contrib   import admin
-  from django.conf.urls import url, include
+# -*- coding: utf-8 -*-
+from django.contrib   import admin
+from django.conf.urls import url, include
 
-  from django.conf.urls.static import static
-  from django.conf import settings
+from django.conf.urls.static import static
+from django.conf import settings
 
-  from django.contrib.sitemaps import views as xml_site
-  from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
-  sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
+from django.contrib.sitemaps import views as xml_site
+from backend.services.sitemap.sitemap import PostSitemap, HomeSitemap, FlowSitemap
+sitemaps = {'articles': PostSitemap, 'home': HomeSitemap, 'flow': FlowSitemap}
 
-  urlpatterns = [
+urlpatterns = [
     url(r"^kmizar-admin-panel/", admin.site.urls),
     url(r"^ckeditor/", include("ckeditor_uploader.urls")),
     url(r"", include("backend.urls")),
     url(r'^sitemap.xml$', xml_site.sitemap, {'sitemaps': sitemaps})
-  ]
+]
 
-  urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 EOF
 fi
